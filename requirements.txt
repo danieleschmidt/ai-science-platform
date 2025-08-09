@@ -10,9 +10,17 @@ torch>=2.0.0
 jax>=0.4.0
 jaxlib>=0.4.0
 
+# System Monitoring and Health
+psutil>=5.8.0
+pyyaml>=6.0
+
 # Experiment Tracking
 wandb>=0.15.0
 tensorboard>=2.10.0
+
+# Performance and Scalability
+dask>=2023.1.0
+ray>=2.0.0
 
 # Testing and Quality
 pytest>=7.0.0
@@ -28,3 +36,7 @@ sphinx-rtd-theme>=1.0.0
 # Jupyter
 jupyter>=1.0.0
 jupyterlab>=3.0.0
+
+# Security and Validation
+cryptography>=3.4.0
+pydantic>=1.8.0
