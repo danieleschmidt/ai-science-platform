@@ -71,6 +71,9 @@ class HealthChecker:
         
         # Register default health checks
         self._register_default_checks()
+        
+        # Initialize robustness monitoring
+        self._initialize_robustness_monitoring()
     
     def _register_default_checks(self) -> None:
         """Register default component health checks"""
@@ -78,6 +81,8 @@ class HealthChecker:
         self.register_health_check("experiment_runner", self._check_experiment_runner)
         self.register_health_check("file_system", self._check_file_system)
         self.register_health_check("logging_system", self._check_logging_system)
+        self.register_health_check("circuit_breakers", self._check_circuit_breakers)
+        self.register_health_check("backup_system", self._check_backup_system)
     
     def register_health_check(self, component_name: str, check_func: Callable[[], ComponentHealth]) -> None:
         """Register a custom health check function"""
@@ -351,6 +356,135 @@ class HealthChecker:
         except Exception as e:
             return ComponentHealth(
                 component_name="logging_system",
+                status="error",
+                last_check=datetime.now().isoformat(),
+                response_time_ms=0.0,
+                error_count=1,
+                details={"error": str(e)}
+            )
+    
+    def _initialize_robustness_monitoring(self) -> None:
+        """Initialize robustness and reliability monitoring"""
+        try:
+            # Initialize backup system health tracking
+            from .utils.backup import get_backup_manager
+            self._backup_manager = get_backup_manager()
+            
+            # Initialize circuit breaker monitoring
+            from .utils.circuit_breaker import get_all_circuit_breaker_stats
+            self._circuit_stats_func = get_all_circuit_breaker_stats
+            
+            logger.info("Robustness monitoring initialized")
+        except Exception as e:
+            logger.warning(f"Could not fully initialize robustness monitoring: {e}")
+    
+    def _check_circuit_breakers(self) -> ComponentHealth:
+        """Check circuit breaker health"""
+        try:
+            from .utils.circuit_breaker import get_all_circuit_breaker_stats
+            
+            stats = get_all_circuit_breaker_stats()
+            
+            # Check for open circuits or high failure rates
+            open_circuits = []
+            high_failure_circuits = []
+            
+            for name, circuit_stats in stats.items():
+                if circuit_stats["state"] == "open":
+                    open_circuits.append(name)
+                elif circuit_stats["recent_success_rate"] < 0.5:  # Less than 50% success rate
+                    high_failure_circuits.append(name)
+            
+            # Determine health status
+            if open_circuits:
+                status = "error"
+                error_count = len(open_circuits)
+            elif high_failure_circuits:
+                status = "warning"
+                error_count = 0
+            else:
+                status = "healthy"
+                error_count = 0
+            
+            return ComponentHealth(
+                component_name="circuit_breakers",
+                status=status,
+                last_check=datetime.now().isoformat(),
+                response_time_ms=0.0,
+                error_count=error_count,
+                warning_count=len(high_failure_circuits),
+                details={
+                    "total_circuits": len(stats),
+                    "open_circuits": open_circuits,
+                    "high_failure_circuits": high_failure_circuits,
+                    "circuit_stats": stats
+                }
+            )
+        
+        except Exception as e:
+            return ComponentHealth(
+                component_name="circuit_breakers",
+                status="error",
+                last_check=datetime.now().isoformat(),
+                response_time_ms=0.0,
+                error_count=1,
+                details={"error": str(e)}
+            )
+    
+    def _check_backup_system(self) -> ComponentHealth:
+        """Check backup system health"""
+        try:
+            from .utils.backup import get_backup_manager
+            
+            backup_manager = get_backup_manager()
+            backups = backup_manager.list_backups()
+            
+            # Check backup health
+            recent_backups = [
+                b for b in backups 
+                if (datetime.now() - datetime.fromisoformat(b.timestamp)).days < 7
+            ]
+            
+            failed_backups = [b for b in backups if b.status == "failed"]
+            
+            # Determine status
+            if failed_backups:
+                status = "warning"
+                warning_count = len(failed_backups)
+            else:
+                status = "healthy"
+                warning_count = 0
+            
+            # Check if backup directory is writable
+            backup_root = Path(backup_manager.backup_root)
+            try:
+                test_file = backup_root / ".health_check"
+                test_file.write_text("test")
+                test_file.unlink()
+                writable = True
+            except Exception:
+                writable = False
+                status = "error"
+            
+            return ComponentHealth(
+                component_name="backup_system",
+                status=status,
+                last_check=datetime.now().isoformat(),
+                response_time_ms=0.0,
+                error_count=1 if not writable else 0,
+                warning_count=warning_count,
+                details={
+                    "total_backups": len(backups),
+                    "recent_backups": len(recent_backups),
+                    "failed_backups": len(failed_backups),
+                    "backup_directory_writable": writable,
+                    "backup_root": str(backup_root)
+                }
+            )
+        
+        except Exception as e:
+            return ComponentHealth(
+                component_name="backup_system",
                 status="error",
                 last_check=datetime.now().isoformat(),
                 response_time_ms=0.0,

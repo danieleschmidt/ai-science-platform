@@ -18,6 +18,27 @@ class SecurityError(Exception):
     pass
 
 
+class ValidationMixin:
+    """Mixin class providing common validation methods"""
+    
+    def validate_positive_int(self, value: Any, field_name: str) -> int:
+        """Validate that a value is a positive integer"""
+        if not isinstance(value, int):
+            raise ValidationError(f"{field_name} must be an integer, got {type(value).__name__}")
+        if value <= 0:
+            raise ValidationError(f"{field_name} must be positive, got {value}")
+        return value
+    
+    def validate_probability(self, value: Any, field_name: str, 
+                           min_val: float = 0.0, max_val: float = 1.0) -> float:
+        """Validate that a value is a valid probability"""
+        if not isinstance(value, (int, float)):
+            raise ValidationError(f"{field_name} must be numeric, got {type(value).__name__}")
+        if not (min_val <= value <= max_val):
+            raise ValidationError(f"{field_name} must be between {min_val} and {max_val}, got {value}")
+        return float(value)
+
+
 def validate_input_data(data: Any, 
                        expected_type: type,
                        min_length: Optional[int] = None,
