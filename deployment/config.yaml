@@ -1,0 +1,74 @@
+# Production Deployment Configuration
+# Bioneural Olfactory Fusion Service
+
+# Service Configuration
+service_name: "bioneural-olfactory-fusion"
+version: "1.0.0"
+port: 8080
+host: "0.0.0.0"
+
+# Scaling Configuration
+min_workers: 2
+max_workers: 16
+worker_type: "thread"  # Options: 'thread', 'process'
+auto_scaling: true
+
+# Performance Configuration
+enable_gpu: true
+gpu_device_id: 0
+batch_processing: true
+max_batch_size: 32
+request_timeout: 30.0
+
+# Monitoring Configuration
+enable_metrics: true
+metrics_port: 9090
+log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# Security Configuration
+enable_auth: false
+api_key_required: false
+rate_limit_per_minute: 1000
+
+# Storage Configuration
+model_cache_dir: "/tmp/bioneural_models"
+results_storage: "memory"  # Options: 'memory', 'redis', 'database'
+
+# Health Check Configuration
+health_check_interval: 30.0
+health_check_timeout: 10.0
+
+# Advanced Configuration
+pipeline_config:
+  encoder_input_dim: 128
+  encoder_output_dim: 256
+  encoder_scales: 4
+  encoder_spectral_bands: 16
+  
+  num_receptors: 50
+  fusion_layers: 3
+  adaptation_strength: 0.1
+  
+  fusion_dim: 128
+  num_attention_heads: 8
+  dropout_rate: 0.1
+  
+  enable_adaptation: true
+  enable_profiling: true
+  quality_threshold: 0.7
+
+# GPU Configuration
+gpu_config:
+  device_type: "cuda"  # Options: 'cuda', 'opencl'
+  device_id: 0
+  memory_pool: true
+  precision: "float32"  # Options: 'float32', 'float64'
+  batch_size: 32
+  use_streams: true
+
+# Distributed Processing Configuration
+distributed_config:
+  task_timeout: 300.0
+  batch_size: 10
+  enable_monitoring: true
+  monitor_interval: 10.0
