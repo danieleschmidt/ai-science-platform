@@ -1,0 +1,21 @@
+{
+  "environment": "production",
+  "version": "1.0.0",
+  "logging": {
+    "level": "INFO",
+    "file": "logs/ai-science-platform.log",
+    "max_size_mb": 100,
+    "backup_count": 5
+  },
+  "security": {
+    "enable_audit_logging": true,
+    "max_memory_mb": 4096,
+    "max_execution_time_seconds": 3600
+  },
+  "performance": {
+    "enable_caching": true,
+    "cache_size_mb": 512,
+    "parallel_workers": 2,
+    "batch_size": 1000
+  }
+}
