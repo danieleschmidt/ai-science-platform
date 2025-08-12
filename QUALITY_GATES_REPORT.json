@@ -1,0 +1,195 @@
+{
+  "timestamp": "2025-08-12 20:24:20",
+  "overall_success": false,
+  "total_execution_time": 1.2086524963378906,
+  "summary": {
+    "total_gates": 10,
+    "passed_gates": 8,
+    "critical_gates": 7,
+    "passed_critical": 5
+  },
+  "gates": [
+    {
+      "name": "Code Execution",
+      "passed": false,
+      "score": 0.8,
+      "execution_time": 0.12670516967773438,
+      "critical": true,
+      "details": {
+        "passed_tests": "4/5",
+        "test_breakdown": {
+          "models_import": true,
+          "algorithms_import": false,
+          "performance_import": true,
+          "core_import": true,
+          "demo_execution": true
+        }
+      }
+    },
+    {
+      "name": "Test Coverage",
+      "passed": true,
+      "score": 0.8551724137931034,
+      "execution_time": 0.0017008781433105469,
+      "critical": true,
+      "details": {
+        "functional_coverage": "100.0%",
+        "file_coverage": "51.7%",
+        "test_files": 15,
+        "source_modules": 29,
+        "functional_tests": {
+          "basic_model_test": true,
+          "research_demo": true,
+          "validation_suite": true,
+          "robust_demo": true,
+          "scaling_demo": true
+        }
+      }
+    },
+    {
+      "name": "Security Scan",
+      "passed": true,
+      "score": 0.8,
+      "execution_time": 0.011748790740966797,
+      "critical": true,
+      "details": {
+        "security_score": "4/5",
+        "checks": {
+          "input_validation": true,
+          "error_handling": true,
+          "logging_security": true,
+          "resource_limits": true,
+          "no_hardcoded_secrets": false
+        },
+        "hardcoded_secrets": true
+      }
+    },
+    {
+      "name": "Performance Benchmarks",
+      "passed": true,
+      "score": 0.75,
+      "execution_time": 0.0013020038604736328,
+      "critical": true,
+      "details": {
+        "basic_execution_time": "0.0002s",
+        "optimized_execution_time": "0.0004s",
+        "throughput": "1000.0 ops/sec",
+        "performance_checks": {
+          "basic_execution_speed": true,
+          "optimization_available": false,
+          "memory_efficient": true,
+          "throughput_acceptable": true
+        }
+      }
+    },
+    {
+      "name": "Documentation Quality",
+      "passed": true,
+      "score": 1.0,
+      "execution_time": 0.0017213821411132812,
+      "critical": false,
+      "details": {
+        "documentation_files": {
+          "README.md": true,
+          "API_DOCUMENTATION.md": true,
+          "RESEARCH_PAPER.md": true,
+          "PUBLICATION_PACKAGE.md": true
+        },
+        "docstring_coverage": "100.0%",
+        "total_py_files": 36
+      }
+    },
+    {
+      "name": "Code Quality",
+      "passed": true,
+      "score": 0.9111111111111111,
+      "execution_time": 0.005780220031738281,
+      "critical": false,
+      "details": {
+        "file_count": 36,
+        "avg_file_size": 319.0,
+        "import_structure": 8.166666666666666,
+        "error_handling": 0.7777777777777778
+      }
+    },
+    {
+      "name": "Memory Leaks",
+      "passed": true,
+      "score": 1.0,
+      "execution_time": 0.04944324493408203,
+      "critical": true,
+      "details": {
+        "initial_memory_mb": "39.8",
+        "peak_memory_mb": "47.6",
+        "final_memory_mb": "40.7",
+        "memory_increase_mb": "7.7",
+        "recovery_ratio": "88.7%",
+        "memory_checks": {
+          "reasonable_usage": true,
+          "memory_recovery": true,
+          "no_excessive_growth": true
+        }
+      }
+    },
+    {
+      "name": "Error Handling",
+      "passed": true,
+      "score": 1.0,
+      "execution_time": 0.002718687057495117,
+      "critical": true,
+      "details": {
+        "error_handling_score": "4/4",
+        "tests": {
+          "robust_framework_available": true,
+          "error_classes_defined": true,
+          "graceful_degradation": true,
+          "logging_on_errors": true
+        },
+        "graceful_degradation_files": 15,
+        "logging_on_error_files": 26
+      }
+    },
+    {
+      "name": "Integration Tests",
+      "passed": false,
+      "score": 0.5,
+      "execution_time": 0.0022983551025390625,
+      "critical": true,
+      "details": {
+        "integration_score": "2/4",
+        "tests": {
+          "end_to_end_demos": true,
+          "component_integration": false,
+          "error_recovery": true,
+          "performance_integration": false
+        },
+        "available_demos": [
+          "quick_research_demo.py",
+          "research_validation_suite.py",
+          "robust_demo.py",
+          "scaling_demo.py"
+        ]
+      }
+    },
+    {
+      "name": "Deployment Readiness",
+      "passed": true,
+      "score": 0.8333333333333334,
+      "execution_time": 1.0048596858978271,
+      "critical": false,
+      "details": {
+        "deployment_score": "5/6",
+        "checks": {
+          "requirements_file": true,
+          "setup_file": true,
+          "docker_support": false,
+          "configuration_management": true,
+          "logging_configured": true,
+          "health_checks": true
+        },
+        "config_files": 2,
+        "log_files": 3
+      }
+    }
+  ]
+}
