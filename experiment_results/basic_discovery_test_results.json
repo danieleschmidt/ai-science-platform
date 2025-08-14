@@ -1,0 +1,39 @@
+{
+  "experiment_name": "basic_discovery_test",
+  "timestamp": "2025-08-14 01:12:31",
+  "results": [
+    {
+      "config_name": "basic_discovery_test",
+      "run_id": 0,
+      "metrics": {
+        "discoveries": 0,
+        "avg_confidence": 0.0
+      },
+      "execution_time": 0.002969026565551758,
+      "success": true,
+      "error_message": null
+    },
+    {
+      "config_name": "basic_discovery_test",
+      "run_id": 1,
+      "metrics": {
+        "discoveries": 0,
+        "avg_confidence": 0.0
+      },
+      "execution_time": 0.0019390583038330078,
+      "success": true,
+      "error_message": null
+    },
+    {
+      "config_name": "basic_discovery_test",
+      "run_id": 2,
+      "metrics": {
+        "discoveries": 0,
+        "avg_confidence": 0.0
+      },
+      "execution_time": 0.0019373893737792969,
+      "success": true,
+      "error_message": null
+    }
+  ]
+}
