@@ -1,42 +1,42 @@
 {
-  "timestamp": "2025-08-12 20:24:20",
+  "timestamp": "2025-08-16 20:40:21",
   "overall_success": false,
-  "total_execution_time": 1.2086524963378906,
+  "total_execution_time": 1.2451634407043457,
   "summary": {
     "total_gates": 10,
-    "passed_gates": 8,
+    "passed_gates": 7,
     "critical_gates": 7,
-    "passed_critical": 5
+    "passed_critical": 4
   },
   "gates": [
     {
       "name": "Code Execution",
       "passed": false,
-      "score": 0.8,
-      "execution_time": 0.12670516967773438,
+      "score": 0.6,
+      "execution_time": 0.13166522979736328,
       "critical": true,
       "details": {
-        "passed_tests": "4/5",
+        "passed_tests": "3/5",
         "test_breakdown": {
           "models_import": true,
           "algorithms_import": false,
           "performance_import": true,
           "core_import": true,
-          "demo_execution": true
+          "demo_execution": false
         }
       }
     },
     {
       "name": "Test Coverage",
-      "passed": true,
-      "score": 0.8551724137931034,
-      "execution_time": 0.0017008781433105469,
+      "passed": false,
+      "score": 0.8090909090909091,
+      "execution_time": 0.002148151397705078,
       "critical": true,
       "details": {
         "functional_coverage": "100.0%",
-        "file_coverage": "51.7%",
-        "test_files": 15,
-        "source_modules": 29,
+        "file_coverage": "36.4%",
+        "test_files": 16,
+        "source_modules": 44,
         "functional_tests": {
           "basic_model_test": true,
           "research_demo": true,
@@ -50,7 +50,7 @@
       "name": "Security Scan",
       "passed": true,
       "score": 0.8,
-      "execution_time": 0.011748790740966797,
+      "execution_time": 0.020607471466064453,
       "critical": true,
       "details": {
         "security_score": "4/5",
@@ -67,16 +67,16 @@
     {
       "name": "Performance Benchmarks",
       "passed": true,
-      "score": 0.75,
-      "execution_time": 0.0013020038604736328,
+      "score": 1.0,
+      "execution_time": 0.008395671844482422,
       "critical": true,
       "details": {
-        "basic_execution_time": "0.0002s",
+        "basic_execution_time": "0.0073s",
         "optimized_execution_time": "0.0004s",
-        "throughput": "1000.0 ops/sec",
+        "throughput": "137.5 ops/sec",
         "performance_checks": {
           "basic_execution_speed": true,
-          "optimization_available": false,
+          "optimization_available": true,
           "memory_efficient": true,
           "throughput_acceptable": true
         }
@@ -86,7 +86,7 @@
       "name": "Documentation Quality",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.0017213821411132812,
+      "execution_time": 0.003340005874633789,
       "critical": false,
       "details": {
         "documentation_files": {
@@ -96,34 +96,34 @@
           "PUBLICATION_PACKAGE.md": true
         },
         "docstring_coverage": "100.0%",
-        "total_py_files": 36
+        "total_py_files": 57
       }
     },
     {
       "name": "Code Quality",
       "passed": true,
-      "score": 0.9111111111111111,
-      "execution_time": 0.005780220031738281,
+      "score": 0.887719298245614,
+      "execution_time": 0.011056900024414062,
       "critical": false,
       "details": {
-        "file_count": 36,
-        "avg_file_size": 319.0,
-        "import_structure": 8.166666666666666,
-        "error_handling": 0.7777777777777778
+        "file_count": 57,
+        "avg_file_size": 391.2631578947368,
+        "import_structure": 7.87719298245614,
+        "error_handling": 0.7192982456140351
       }
     },
     {
       "name": "Memory Leaks",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.04944324493408203,
+      "execution_time": 0.05414223670959473,
       "critical": true,
       "details": {
-        "initial_memory_mb": "39.8",
-        "peak_memory_mb": "47.6",
-        "final_memory_mb": "40.7",
+        "initial_memory_mb": "42.3",
+        "peak_memory_mb": "50.0",
+        "final_memory_mb": "43.2",
         "memory_increase_mb": "7.7",
-        "recovery_ratio": "88.7%",
+        "recovery_ratio": "88.6%",
         "memory_checks": {
           "reasonable_usage": true,
           "memory_recovery": true,
@@ -135,7 +135,7 @@
       "name": "Error Handling",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.002718687057495117,
+      "execution_time": 0.005065441131591797,
       "critical": true,
       "details": {
         "error_handling_score": "4/4",
@@ -145,15 +145,15 @@
           "graceful_degradation": true,
           "logging_on_errors": true
         },
-        "graceful_degradation_files": 15,
-        "logging_on_error_files": 26
+        "graceful_degradation_files": 25,
+        "logging_on_error_files": 39
       }
     },
     {
       "name": "Integration Tests",
       "passed": false,
       "score": 0.5,
-      "execution_time": 0.0022983551025390625,
+      "execution_time": 0.002587556838989258,
       "critical": true,
       "details": {
         "integration_score": "2/4",
@@ -175,7 +175,7 @@
       "name": "Deployment Readiness",
       "passed": true,
       "score": 0.8333333333333334,
-      "execution_time": 1.0048596858978271,
+      "execution_time": 1.0056967735290527,
       "critical": false,
       "details": {
         "deployment_score": "5/6",

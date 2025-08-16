@@ -1,9 +1,9 @@
 {
-  "file_structure": true,
+  "file_structure": false,
   "code_quality": {
-    "python_files": 126,
-    "total_lines": 47582,
-    "documentation_ratio": 0.5611996132991467,
+    "python_files": 4230,
+    "total_lines": 1783548,
+    "documentation_ratio": 0.4219381816469195,
     "quality_score": 1.0
   },
   "research_contributions": {

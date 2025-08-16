@@ -1,0 +1,42 @@
+{
+  "experiment_name": "discovery_optimization",
+  "timestamp": "2025-08-16 20:40:13",
+  "results": [
+    {
+      "config_name": "discovery_optimization",
+      "run_id": 0,
+      "metrics": {
+        "num_discoveries": 3,
+        "avg_confidence": 0.9150627178486942,
+        "processing_time": 0.002412080764770508
+      },
+      "execution_time": 0.0024695396423339844,
+      "success": true,
+      "error_message": null
+    },
+    {
+      "config_name": "discovery_optimization",
+      "run_id": 1,
+      "metrics": {
+        "num_discoveries": 0,
+        "avg_confidence": 0,
+        "processing_time": 0.0021338462829589844
+      },
+      "execution_time": 0.002158641815185547,
+      "success": true,
+      "error_message": null
+    },
+    {
+      "config_name": "discovery_optimization",
+      "run_id": 2,
+      "metrics": {
+        "num_discoveries": 3,
+        "avg_confidence": 0.9499999999999998,
+        "processing_time": 0.002232074737548828
+      },
+      "execution_time": 0.002287626266479492,
+      "success": true,
+      "error_message": null
+    }
+  ]
+}
