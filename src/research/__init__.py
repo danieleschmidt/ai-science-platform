@@ -17,7 +17,7 @@ from .validation_framework import (
 from .benchmark_suite import (
     ComprehensiveBenchmark,
     BaselineComparison,
-    PerformanceProfiler,
+    PerformanceProfile,
     ScalabilityAnalyzer
 )
 
@@ -27,5 +27,5 @@ __all__ = [
     'ResearchValidator', 'StatisticalAnalyzer', 
     'NoveltyAssessment', 'ReproducibilityFramework',
     'ComprehensiveBenchmark', 'BaselineComparison',
-    'PerformanceProfiler', 'ScalabilityAnalyzer'
+    'PerformanceProfile', 'ScalabilityAnalyzer'
 ]

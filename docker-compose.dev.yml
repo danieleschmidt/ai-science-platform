@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  ai-science-platform-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    
+    image: terragon/ai-science-platform:dev
+    
+    container_name: ai-science-platform-dev
+    
+    ports:
+      - "8000:8000"
+      - "8888:8888"  # Jupyter port
+    
+    environment:
+      - LOG_LEVEL=DEBUG
+      - WORKERS=1
+      - ENVIRONMENT=development
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    
+    volumes:
+      - .:/app
+      - dev_cache:/app/cache
+      - dev_logs:/app/logs
+    
+    depends_on:
+      - redis-dev
+    
+    networks:
+      - ai-science-dev-network
+    
+    command: >
+      sh -c "python -m pytest tests/ --tb=short -v &&
+             python -m src.main --dev"
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: ai-science-redis-dev
+    ports:
+      - "6380:6379"
+    networks:
+      - ai-science-dev-network
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    
+    image: terragon/ai-science-platform:dev
+    
+    container_name: ai-science-jupyter
+    
+    ports:
+      - "8888:8888"
+    
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - PYTHONPATH=/app
+    
+    volumes:
+      - .:/app
+      - jupyter_data:/home/aiuser/.jupyter
+    
+    networks:
+      - ai-science-dev-network
+    
+    command: >
+      sh -c "pip install jupyterlab &&
+             jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root"
+
+networks:
+  ai-science-dev-network:
+    driver: bridge
+
+volumes:
+  dev_cache:
+  dev_logs:
+  jupyter_data:

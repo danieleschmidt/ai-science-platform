@@ -7,7 +7,6 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 import json
-import pickle
 from dataclasses import dataclass
 import time
 
@@ -27,7 +26,7 @@ class SecurityConfig:
     
     def __post_init__(self):
         if self.allowed_file_extensions is None:
-            self.allowed_file_extensions = ['.npy', '.csv', '.json', '.pkl', '.txt']
+            self.allowed_file_extensions = ['.npy', '.csv', '.json', '.txt']  # Removed .pkl for security
 
 
 class SecurityValidator:
@@ -256,7 +255,7 @@ class SecurityValidator:
         return is_valid
     
     def safe_pickle_load(self, file_path: Union[str, Path]) -> Tuple[Any, bool, str]:
-        """Safely load pickle file with validation
+        """DEPRECATED: Use safe_json_load instead for security
         
         Args:
             file_path: Path to pickle file
@@ -264,31 +263,8 @@ class SecurityValidator:
         Returns:
             Tuple of (data, success, error_message)
         """
-        try:
-            # Validate file path first
-            is_valid, error = self.validate_file_path(file_path)
-            if not is_valid:
-                return None, False, error
-            
-            path = Path(file_path)
-            if not path.exists():
-                return None, False, f"File does not exist: {file_path}"
-            
-            # Check file extension
-            if path.suffix.lower() not in ['.pkl', '.pickle']:
-                return None, False, f"Not a pickle file: {file_path}"
-            
-            # Load with restricted unpickler (basic protection)
-            with open(path, 'rb') as f:
-                data = pickle.load(f)
-            
-            self._audit_log(f"Safely loaded pickle file: {file_path}")
-            return data, True, ""
-            
-        except Exception as e:
-            error_msg = f"Failed to load pickle file {file_path}: {str(e)}"
-            self._audit_log(error_msg, level="ERROR")
-            return None, False, error_msg
+        logger.warning("safe_pickle_load is deprecated due to security concerns. Use safe_json_load instead.")
+        return None, False, "Pickle loading is disabled for security reasons. Use JSON format instead."
     
     def safe_json_load(self, file_path: Union[str, Path]) -> Tuple[Any, bool, str]:
         """Safely load JSON file with validation

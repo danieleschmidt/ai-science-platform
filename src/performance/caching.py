@@ -2,7 +2,7 @@
 
 import time
 import hashlib
-import pickle
+import json
 import logging
 from typing import Any, Dict, Optional, Callable, Tuple
 from functools import wraps
@@ -98,15 +98,15 @@ class PersistentCache:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.max_size_mb = max_size_mb
         self._lock = threading.Lock()
-        self._index_file = self.cache_dir / "cache_index.pkl"
+        self._index_file = self.cache_dir / "cache_index.json"
         self._index = self._load_index()
     
     def _load_index(self) -> Dict[str, Dict[str, Any]]:
         """Load cache index from disk"""
         if self._index_file.exists():
             try:
-                with open(self._index_file, 'rb') as f:
-                    return pickle.load(f)
+                with open(self._index_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
             except Exception as e:
                 logger.warning(f"Failed to load cache index: {e}")
         return {}
@@ -114,8 +114,8 @@ class PersistentCache:
     def _save_index(self) -> None:
         """Save cache index to disk"""
         try:
-            with open(self._index_file, 'wb') as f:
-                pickle.dump(self._index, f)
+            with open(self._index_file, 'w', encoding='utf-8') as f:
+                json.dump(self._index, f, indent=2, default=str)
         except Exception as e:
             logger.error(f"Failed to save cache index: {e}")
     
@@ -123,7 +123,36 @@ class PersistentCache:
         """Get file path for cache key"""
         # Use hash to avoid filesystem issues
         key_hash = hashlib.sha256(key.encode()).hexdigest()
-        return self.cache_dir / f"{key_hash}.pkl"
+        return self.cache_dir / f"{key_hash}.json"
+    
+    def _serialize_for_json(self, value: Any) -> Any:
+        """Convert value to JSON-serializable format"""
+        if isinstance(value, np.ndarray):
+            return {
+                "__numpy_array__": True,
+                "data": value.tolist(),
+                "dtype": str(value.dtype),
+                "shape": value.shape
+            }
+        elif isinstance(value, (np.integer, np.floating)):
+            return float(value)
+        elif isinstance(value, dict):
+            return {k: self._serialize_for_json(v) for k, v in value.items()}
+        elif isinstance(value, (list, tuple)):
+            return [self._serialize_for_json(item) for item in value]
+        else:
+            return value
+    
+    def _deserialize_from_json(self, value: Any) -> Any:
+        """Convert JSON data back to original format"""
+        if isinstance(value, dict) and value.get("__numpy_array__"):
+            return np.array(value["data"], dtype=value["dtype"]).reshape(value["shape"])
+        elif isinstance(value, dict):
+            return {k: self._deserialize_from_json(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [self._deserialize_from_json(item) for item in value]
+        else:
+            return value
     
     def get(self, key: str) -> Tuple[bool, Any]:
         """Get item from persistent cache"""
@@ -139,8 +168,9 @@ class PersistentCache:
                 return False, None
             
             try:
-                with open(file_path, 'rb') as f:
-                    data = pickle.load(f)
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    json_data = json.load(f)
+                    data = self._deserialize_from_json(json_data)
                 
                 # Update access time
                 self._index[key]["last_access"] = time.time()
@@ -158,9 +188,9 @@ class PersistentCache:
             try:
                 file_path = self._get_file_path(key)
                 
-                # Save data to disk
-                with open(file_path, 'wb') as f:
-                    pickle.dump(value, f)
+                # Save data to disk using JSON (secure serialization)
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(self._serialize_for_json(value), f, indent=2, default=str)
                 
                 # Update index
                 file_size = file_path.stat().st_size

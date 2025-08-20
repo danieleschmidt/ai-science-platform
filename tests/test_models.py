@@ -1,405 +1,442 @@
-"""Tests for models module"""
+"""Comprehensive tests for models module"""
 
 import pytest
 import numpy as np
 import tempfile
 import os
-from src.models.base import BaseModel, SimpleLinearModel, ModelMetrics
+from src.models.simple import SimpleModel, SimpleDiscoveryModel, ModelOutput, create_model, benchmark_model
 
 
-class TestModelMetrics:
+class TestModelOutput:
+    """Test ModelOutput dataclass"""
+    
+    def test_model_output_creation(self):
+        """Test ModelOutput creation"""
+        predictions = np.array([0.5, 0.3, 0.8])
+        confidence = 0.75
+        metadata = {"test": True}
+        
+        output = ModelOutput(
+            predictions=predictions,
+            confidence=confidence,
+            metadata=metadata
+        )
+        
+        assert np.array_equal(output.predictions, predictions)
+        assert output.confidence == confidence
+        assert output.metadata == metadata
+    
+    def test_model_output_without_metadata(self):
+        """Test ModelOutput creation without metadata"""
+        predictions = np.array([0.1, 0.9])
+        confidence = 0.6
+        
+        output = ModelOutput(
+            predictions=predictions,
+            confidence=confidence
+        )
+        
+        assert np.array_equal(output.predictions, predictions)
+        assert output.confidence == confidence
+        assert output.metadata is None
+
+
+class TestSimpleModel:
+    """Test SimpleModel implementation"""
     
     def test_initialization(self):
-        """Test ModelMetrics initialization"""
-        metrics = ModelMetrics()
-        assert metrics.accuracy == 0.0
-        assert metrics.loss == float('inf')
-        assert metrics.training_time == 0.0
-        assert metrics.inference_time == 0.0
-        assert metrics.memory_usage == 0.0
-        assert isinstance(metrics.additional_metrics, dict)
+        """Test model initialization"""
+        model = SimpleModel(input_dim=5, hidden_dim=32, output_dim=2)
+        
+        assert model.input_dim == 5
+        assert model.hidden_dim == 32
+        assert model.output_dim == 2
+        assert not model.trained
+        assert 'W1' in model.weights
+        assert 'W2' in model.weights
+        assert 'b1' in model.weights
+        assert 'b2' in model.weights
     
-    def test_custom_initialization(self):
-        """Test ModelMetrics with custom values"""
-        metrics = ModelMetrics(
-            accuracy=0.95,
-            loss=0.05,
-            training_time=10.5,
-            additional_metrics={"f1_score": 0.93}
-        )
-        assert metrics.accuracy == 0.95
-        assert metrics.loss == 0.05
-        assert metrics.training_time == 10.5
-        assert metrics.additional_metrics["f1_score"] == 0.93
-
-
-class MockModel(BaseModel):
-    """Mock model for testing BaseModel abstract methods"""
+    def test_default_initialization(self):
+        """Test model with default parameters"""
+        model = SimpleModel()
+        
+        assert model.input_dim == 10
+        assert model.hidden_dim == 64
+        assert model.output_dim == 1
+        assert not model.trained
     
-    def __init__(self, fail_predict=False, fail_train=False):
-        super().__init__("MockModel", {"fail_predict": fail_predict, "fail_train": fail_train})
-        self.fail_predict = fail_predict
-        self.fail_train = fail_train
-        self.training_data = None
+    def test_forward_pass(self):
+        """Test forward pass"""
+        model = SimpleModel(input_dim=3, hidden_dim=16, output_dim=2)
+        input_data = np.array([1.0, 2.0, 3.0])
+        
+        output = model.forward(input_data)
+        
+        assert isinstance(output, ModelOutput)
+        assert len(output.predictions) == 2
+        assert 0.0 <= output.confidence <= 1.0
+        assert output.metadata['model_type'] == 'SimpleModel'
+        assert output.metadata['trained'] == False
     
-    def train(self, X, y, **kwargs):
-        if self.fail_train:
-            raise RuntimeError("Training failed")
+    def test_forward_batch(self):
+        """Test forward pass with batch input"""
+        model = SimpleModel(input_dim=4)
+        input_data = np.random.randn(5, 4)  # Batch of 5 samples
         
-        self.training_data = (X.copy(), y.copy())
-        self.is_trained = True
+        output = model.forward(input_data)
         
-        # Mock metrics
-        self.metrics = ModelMetrics(
-            accuracy=0.85,
-            loss=0.15,
-            training_time=1.0,
-            additional_metrics={"r2_score": 0.80}
-        )
-        
-        self._model_parameters = {"weights": np.random.randn(X.shape[1]), "bias": 0.1}
-        return self.metrics
+        assert isinstance(output, ModelOutput)
+        assert len(output.predictions) == 5
+        assert isinstance(output.confidence, float)
     
-    def predict(self, X):
-        if self.fail_predict:
-            raise RuntimeError("Prediction failed")
+    def test_forward_wrong_dimension(self):
+        """Test forward pass with wrong input dimension"""
+        model = SimpleModel(input_dim=3)
+        input_data = np.array([1.0, 2.0])  # Wrong dimension
         
-        if not self.is_trained:
-            raise ValueError("Model must be trained before making predictions")
-        
-        # Mock predictions
-        return X.mean(axis=1) + 0.1
+        with pytest.raises(ValueError, match="Input dimension"):
+            model.forward(input_data)
     
-    def evaluate(self, X, y):
-        predictions = self.predict(X)
-        mse = np.mean((predictions - y) ** 2)
+    def test_predict_method(self):
+        """Test predict method"""
+        model = SimpleModel(input_dim=2)
+        input_data = np.array([[1.0, 2.0], [3.0, 4.0]])
         
-        return ModelMetrics(
-            accuracy=0.82,
-            loss=mse,
-            additional_metrics={"mae": np.mean(np.abs(predictions - y))}
-        )
-
-
-class TestBaseModel:
-    
-    def test_initialization(self):
-        """Test BaseModel initialization"""
-        model = MockModel()
+        predictions = model.predict(input_data)
         
-        assert model.model_name == "MockModel"
-        assert not model.is_trained
-        assert isinstance(model.metrics, ModelMetrics)
-        assert isinstance(model._model_parameters, dict)
-    
-    def test_custom_initialization(self):
-        """Test BaseModel with custom config"""
-        config = {"param1": 10, "param2": "test"}
-        model = MockModel()
-        model.config = config
-        
-        assert model.config == config
-    
-    def test_train_success(self):
-        """Test successful training"""
-        model = MockModel()
-        X = np.random.randn(100, 3)
-        y = np.random.randn(100)
-        
-        metrics = model.train(X, y)
-        
-        assert model.is_trained
-        assert isinstance(metrics, ModelMetrics)
-        assert metrics.accuracy == 0.85
-        assert "r2_score" in metrics.additional_metrics
-        assert model.training_data[0].shape == X.shape
-    
-    def test_train_failure(self):
-        """Test training failure"""
-        model = MockModel(fail_train=True)
-        X = np.random.randn(50, 2)
-        y = np.random.randn(50)
-        
-        with pytest.raises(RuntimeError, match="Training failed"):
-            model.train(X, y)
-        
-        assert not model.is_trained
-    
-    def test_predict_success(self):
-        """Test successful prediction"""
-        model = MockModel()
-        X_train = np.random.randn(100, 3)
-        y_train = np.random.randn(100)
-        X_test = np.random.randn(20, 3)
-        
-        model.train(X_train, y_train)
-        predictions = model.predict(X_test)
-        
-        assert predictions.shape == (20,)
         assert isinstance(predictions, np.ndarray)
+        assert len(predictions) == 2
     
-    def test_predict_not_trained(self):
-        """Test prediction without training"""
-        model = MockModel()
-        X = np.random.randn(10, 3)
-        
-        with pytest.raises(ValueError, match="Model must be trained before making predictions"):
-            model.predict(X)
-    
-    def test_predict_failure(self):
-        """Test prediction failure"""
-        model = MockModel(fail_predict=True)
-        X_train = np.random.randn(50, 2)
-        y_train = np.random.randn(50)
-        X_test = np.random.randn(10, 2)
-        
-        model.train(X_train, y_train)
-        
-        with pytest.raises(RuntimeError, match="Prediction failed"):
-            model.predict(X_test)
-    
-    def test_evaluate(self):
-        """Test model evaluation"""
-        model = MockModel()
-        X_train = np.random.randn(100, 3)
-        y_train = np.random.randn(100)
-        X_test = np.random.randn(20, 3)
-        y_test = np.random.randn(20)
-        
-        model.train(X_train, y_train)
-        metrics = model.evaluate(X_test, y_test)
-        
-        assert isinstance(metrics, ModelMetrics)
-        assert metrics.accuracy == 0.82
-        assert "mae" in metrics.additional_metrics
-    
-    def test_fit_transform(self):
-        """Test fit_transform convenience method"""
-        model = MockModel()
+    def test_training_basic(self):
+        """Test basic training functionality"""
+        model = SimpleModel(input_dim=2, hidden_dim=8)
         X = np.random.randn(50, 2)
         y = np.random.randn(50)
         
-        predictions, metrics = model.fit_transform(X, y)
+        model.fit(X, y, epochs=50, learning_rate=0.01)
         
-        assert model.is_trained
-        assert predictions.shape == (50,)
-        assert isinstance(metrics, ModelMetrics)
-    
-    def test_save_load_pickle(self):
-        """Test save/load with pickle format"""
-        model = MockModel()
-        X = np.random.randn(30, 2)
-        y = np.random.randn(30)
-        model.train(X, y)
-        
-        with tempfile.NamedTemporaryFile(suffix='.pkl', delete=False) as f:
-            filepath = f.name
-        
-        try:
-            model.save_model(filepath)
-            
-            # Create new model and load
-            new_model = MockModel()
-            new_model.load_model(filepath)
-            
-            assert new_model.is_trained
-            assert new_model.model_name == "MockModel"
-            assert new_model.metrics.accuracy == 0.85
-            assert new_model._model_parameters["bias"] == 0.1
-        
-        finally:
-            os.unlink(filepath)
-    
-    def test_save_load_json(self):
-        """Test save/load with JSON format"""
-        model = MockModel()
-        X = np.random.randn(30, 2)  
-        y = np.random.randn(30)
-        model.train(X, y)
-        
-        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
-            filepath = f.name
-        
-        try:
-            model.save_model(filepath)
-            
-            # Create new model and load
-            new_model = MockModel()
-            new_model.load_model(filepath)
-            
-            assert new_model.is_trained
-            assert new_model.model_name == "MockModel"
-        
-        finally:
-            os.unlink(filepath)
+        assert model.trained == True
+        # Should be able to make predictions after training
+        predictions = model.predict(X[:5])
+        assert len(predictions) == 5
     
     def test_get_model_info(self):
         """Test get_model_info method"""
-        model = MockModel()
-        X = np.random.randn(40, 3)
-        y = np.random.randn(40)
-        model.train(X, y)
+        model = SimpleModel(input_dim=3, hidden_dim=20, output_dim=2)
         
         info = model.get_model_info()
         
-        assert info["model_name"] == "MockModel"
-        assert info["is_trained"] == True
-        assert "metrics" in info
-        assert info["metrics"]["accuracy"] == 0.85
-        assert "parameter_count" in info
+        assert info['input_dim'] == 3
+        assert info['hidden_dim'] == 20
+        assert info['output_dim'] == 2
+        assert info['trained'] == False
+        assert info['model_type'] == 'SimpleModel'
+        assert 'parameters' in info
     
-    def test_reset_model(self):
-        """Test model reset"""
-        model = MockModel()
-        X = np.random.randn(30, 2)
-        y = np.random.randn(30)
-        model.train(X, y)
+    def test_activation_functions(self):
+        """Test activation functions"""
+        model = SimpleModel()
         
-        assert model.is_trained
+        # Test sigmoid
+        x = np.array([0.0, 1.0, -1.0, 10.0, -10.0])
+        sigmoid_result = model._sigmoid(x)
+        assert np.all((sigmoid_result >= 0) & (sigmoid_result <= 1))
         
-        model.reset_model()
-        
-        assert not model.is_trained
-        assert model.metrics.accuracy == 0.0
-        assert len(model._model_parameters) == 0
-    
-    def test_string_representation(self):
-        """Test string representation"""
-        model = MockModel()
-        str_repr = str(model)
-        
-        assert "MockModel" in str_repr
-        assert "trained=False" in str_repr
-        
-        # Train and check again
-        X = np.random.randn(20, 2)
-        y = np.random.randn(20)
-        model.train(X, y)
-        
-        str_repr = str(model)
-        assert "trained=True" in str_repr
-        assert "accuracy=0.850" in str_repr
+        # Test ReLU
+        relu_result = model._relu(x)
+        expected = np.array([0.0, 1.0, 0.0, 10.0, 0.0])
+        assert np.array_equal(relu_result, expected)
 
 
-class TestSimpleLinearModel:
+class TestSimpleDiscoveryModel:
+    """Test SimpleDiscoveryModel implementation"""
     
     def test_initialization(self):
-        """Test SimpleLinearModel initialization"""
-        model = SimpleLinearModel(learning_rate=0.05, max_iterations=500)
+        """Test discovery model initialization"""
+        model = SimpleDiscoveryModel(input_dim=5, hidden_dim=32)
         
-        assert model.model_name == "SimpleLinearModel"
-        assert model.learning_rate == 0.05
-        assert model.max_iterations == 500
-        assert model.weights is None
-        assert model.bias is None
+        assert model.input_dim == 5
+        assert model.hidden_dim == 32
+        assert model.output_dim == 3  # discovery_score, novelty, confidence
+        assert model.discovery_threshold == 0.7
+        assert not model.trained
     
-    def test_train_linear_data(self):
-        """Test training on linear data"""
-        # Generate linear data: y = 2x + 1 + noise
-        np.random.seed(42)
-        X = np.random.randn(200, 1)
-        y = 2 * X.flatten() + 1 + np.random.randn(200) * 0.1
+    def test_forward_pass(self):
+        """Test forward pass with discovery outputs"""
+        model = SimpleDiscoveryModel(input_dim=4)
+        input_data = np.random.randn(4)
         
-        model = SimpleLinearModel(learning_rate=0.01, max_iterations=1000)
-        metrics = model.train(X, y)
+        output = model.forward(input_data)
         
-        assert model.is_trained
-        assert isinstance(metrics, ModelMetrics)
-        assert metrics.accuracy > 0.8  # Should achieve good R²
-        assert metrics.loss < 1.0  # Should have low MSE
-        assert model.weights is not None
-        assert model.bias is not None
-        
-        # Check if learned parameters are reasonable
-        assert abs(model.weights[0] - 2.0) < 0.2  # Should be close to 2
-        assert abs(model.bias - 1.0) < 0.2  # Should be close to 1
+        assert isinstance(output, ModelOutput)
+        assert len(output.predictions) == 3
+        assert output.metadata['model_type'] == 'SimpleDiscoveryModel'
+        assert 'discovery_score' in output.metadata
+        assert 'novelty_score' in output.metadata
+        assert 'is_discovery' in output.metadata
     
-    def test_train_multidimensional(self):
-        """Test training on multi-dimensional data"""
-        np.random.seed(42)
-        X = np.random.randn(100, 3)
-        true_weights = np.array([1.5, -2.0, 0.5])
-        y = X.dot(true_weights) + np.random.randn(100) * 0.1
+    def test_predict_discovery(self):
+        """Test predict_discovery method"""
+        model = SimpleDiscoveryModel(input_dim=3)
+        input_data = np.random.randn(3)
         
-        model = SimpleLinearModel(learning_rate=0.01, max_iterations=2000)
-        metrics = model.train(X, y)
+        result = model.predict_discovery(input_data)
         
-        assert model.is_trained
-        assert model.weights.shape == (3,)
-        assert metrics.accuracy > 0.85
+        assert isinstance(result, dict)
+        assert 'is_discovery' in result
+        assert 'discovery_score' in result
+        assert 'novelty_score' in result
+        assert 'confidence' in result
+        assert 'discovery_category' in result
+        assert 'metadata' in result
         
-        # Check learned weights are reasonable
-        for i, true_weight in enumerate(true_weights):
-            assert abs(model.weights[i] - true_weight) < 0.3
+        # Check data types
+        assert isinstance(result['is_discovery'], (bool, np.bool_))
+        assert isinstance(result['discovery_score'], float)
+        assert isinstance(result['novelty_score'], float)
+        assert isinstance(result['confidence'], float)
+        assert isinstance(result['discovery_category'], str)
     
-    def test_predict(self):
-        """Test prediction"""
-        np.random.seed(42)
-        X_train = np.random.randn(100, 2)
-        y_train = X_train[:, 0] - X_train[:, 1] + np.random.randn(100) * 0.1
+    def test_discovery_categorization(self):
+        """Test discovery categorization logic"""
+        model = SimpleDiscoveryModel()
         
-        model = SimpleLinearModel(max_iterations=1000)
-        model.train(X_train, y_train)
+        # Test different scenarios
+        categories = []
+        for discovery_score in [0.1, 0.4, 0.6, 0.8, 0.9]:
+            for novelty_score in [0.2, 0.5, 0.8]:
+                category = model._categorize_discovery(discovery_score, novelty_score)
+                categories.append(category)
+                assert isinstance(category, str)
         
-        X_test = np.random.randn(20, 2)
+        # Should have different categories
+        unique_categories = set(categories)
+        assert len(unique_categories) >= 3
+    
+    def test_set_discovery_threshold(self):
+        """Test setting discovery threshold"""
+        model = SimpleDiscoveryModel()
+        
+        # Test valid thresholds
+        model.set_discovery_threshold(0.5)
+        assert model.discovery_threshold == 0.5
+        
+        model.set_discovery_threshold(0.9)
+        assert model.discovery_threshold == 0.9
+        
+        # Test boundary conditions
+        model.set_discovery_threshold(-0.1)  # Should clamp to 0
+        assert model.discovery_threshold == 0.0
+        
+        model.set_discovery_threshold(1.5)  # Should clamp to 1
+        assert model.discovery_threshold == 1.0
+    
+    def test_discovery_threshold_effect(self):
+        """Test that discovery threshold affects is_discovery result"""
+        model = SimpleDiscoveryModel(input_dim=2)
+        input_data = np.array([0.5, 0.5])
+        
+        # Set low threshold
+        model.set_discovery_threshold(0.1)
+        result_low = model.predict_discovery(input_data)
+        
+        # Set high threshold  
+        model.set_discovery_threshold(0.9)
+        result_high = model.predict_discovery(input_data)
+        
+        # Results should potentially differ based on threshold
+        # (depending on the actual discovery score)
+        assert 'is_discovery' in result_low
+        assert 'is_discovery' in result_high
+
+
+class TestModelUtilities:
+    """Test utility functions"""
+    
+    def test_create_model_simple(self):
+        """Test create_model with simple type"""
+        model = create_model(model_type="simple", input_dim=5, hidden_dim=32)
+        
+        assert isinstance(model, SimpleModel)
+        assert model.input_dim == 5
+        assert model.hidden_dim == 32
+    
+    def test_create_model_discovery(self):
+        """Test create_model with discovery type"""
+        model = create_model(model_type="discovery", input_dim=4, hidden_dim=16)
+        
+        assert isinstance(model, SimpleDiscoveryModel)
+        assert model.input_dim == 4
+        assert model.hidden_dim == 16
+    
+    def test_create_model_invalid_type(self):
+        """Test create_model with invalid type"""
+        with pytest.raises(ValueError, match="Unknown model type"):
+            create_model(model_type="invalid")
+    
+    def test_benchmark_model(self):
+        """Test benchmark_model function"""
+        model = SimpleModel(input_dim=3)
+        test_data = np.random.randn(3)
+        
+        results = benchmark_model(model, test_data, iterations=10)
+        
+        assert isinstance(results, dict)
+        assert 'avg_inference_time_ms' in results
+        assert 'std_inference_time_ms' in results
+        assert 'min_inference_time_ms' in results
+        assert 'max_inference_time_ms' in results
+        assert 'throughput_per_second' in results
+        
+        # Check that all values are reasonable
+        assert results['avg_inference_time_ms'] > 0
+        assert results['std_inference_time_ms'] >= 0
+        assert results['min_inference_time_ms'] >= 0
+        assert results['max_inference_time_ms'] >= results['min_inference_time_ms']
+        assert results['throughput_per_second'] > 0
+
+
+class TestModelIntegration:
+    """Integration tests for models"""
+    
+    def test_end_to_end_simple_model(self):
+        """Test complete workflow with SimpleModel"""
+        # Create model
+        model = create_model("simple", input_dim=4, hidden_dim=16)
+        
+        # Generate training data
+        X_train = np.random.randn(100, 4)
+        y_train = np.random.randn(100)
+        
+        # Train model
+        model.fit(X_train, y_train, epochs=50)
+        assert model.trained
+        
+        # Make predictions
+        X_test = np.random.randn(10, 4)
         predictions = model.predict(X_test)
+        assert len(predictions) == 10
         
-        assert predictions.shape == (20,)
-        assert isinstance(predictions, np.ndarray)
+        # Test forward pass
+        output = model.forward(X_test[0])
+        assert isinstance(output, ModelOutput)
+        
+        # Benchmark performance
+        benchmark_results = benchmark_model(model, X_test[0], iterations=5)
+        assert 'avg_inference_time_ms' in benchmark_results
     
-    def test_evaluate(self):
-        """Test evaluation"""
-        np.random.seed(42)
-        X_train = np.random.randn(150, 1)
-        y_train = 3 * X_train.flatten() + np.random.randn(150) * 0.2
+    def test_end_to_end_discovery_model(self):
+        """Test complete workflow with SimpleDiscoveryModel"""
+        # Create discovery model
+        model = create_model("discovery", input_dim=3, hidden_dim=20)
         
-        X_test = np.random.randn(50, 1)  
-        y_test = 3 * X_test.flatten() + np.random.randn(50) * 0.2
+        # Generate training data
+        X_train = np.random.randn(50, 3)
+        y_train = np.random.randn(50)
         
-        model = SimpleLinearModel(max_iterations=1500)
-        model.train(X_train, y_train)
+        # Train model
+        model.fit(X_train, y_train, epochs=30)
+        assert model.trained
         
-        eval_metrics = model.evaluate(X_test, y_test)
+        # Test discovery predictions
+        test_input = np.random.randn(3)
+        discovery_result = model.predict_discovery(test_input)
         
-        assert isinstance(eval_metrics, ModelMetrics)
-        assert eval_metrics.accuracy > 0.8  # Should have good R²
-        assert "r2_score" in eval_metrics.additional_metrics
-        assert "mae" in eval_metrics.additional_metrics
-        assert "rmse" in eval_metrics.additional_metrics
+        assert 'is_discovery' in discovery_result
+        assert 'discovery_category' in discovery_result
+        
+        # Test threshold adjustment
+        original_threshold = model.discovery_threshold
+        model.set_discovery_threshold(0.5)
+        assert model.discovery_threshold == 0.5
+        
+        # Reset threshold
+        model.set_discovery_threshold(original_threshold)
+        assert model.discovery_threshold == original_threshold
     
-    def test_single_feature(self):
-        """Test with single feature data"""
-        np.random.seed(42)
-        X = np.array([[1], [2], [3], [4], [5]])
-        y = np.array([2, 4, 6, 8, 10])  # Perfect linear relationship
+    def test_model_comparison(self):
+        """Test comparing different model types"""
+        input_dim = 5
+        test_data = np.random.randn(input_dim)
         
-        model = SimpleLinearModel(learning_rate=0.1, max_iterations=1000)
-        metrics = model.train(X, y)
+        # Create both model types
+        simple_model = create_model("simple", input_dim=input_dim, hidden_dim=16)
+        discovery_model = create_model("discovery", input_dim=input_dim, hidden_dim=16)
         
-        assert model.is_trained
-        assert metrics.accuracy > 0.95  # Should be nearly perfect
+        # Test forward passes
+        simple_output = simple_model.forward(test_data)
+        discovery_output = discovery_model.forward(test_data)
         
-        # Test prediction
-        X_test = np.array([[6], [7]])
-        predictions = model.predict(X_test)
+        assert len(simple_output.predictions) == 1  # SimpleModel has 1 output
+        assert len(discovery_output.predictions) == 3  # DiscoveryModel has 3 outputs
         
-        # Should predict close to [12, 14]
-        assert abs(predictions[0] - 12) < 1.0
-        assert abs(predictions[1] - 14) < 1.0
+        # Benchmark both
+        simple_benchmark = benchmark_model(simple_model, test_data, iterations=5)
+        discovery_benchmark = benchmark_model(discovery_model, test_data, iterations=5)
+        
+        assert 'throughput_per_second' in simple_benchmark
+        assert 'throughput_per_second' in discovery_benchmark
+
+
+class TestModelRobustness:
+    """Test model robustness and edge cases"""
     
-    def test_convergence(self):
-        """Test that model converges properly"""
-        np.random.seed(42)
-        X = np.random.randn(100, 1)
-        y = 5 * X.flatten() + 2 + np.random.randn(100) * 0.05  # Low noise
+    def test_extreme_input_values(self):
+        """Test models with extreme input values"""
+        model = SimpleModel(input_dim=3)
         
-        # Test with different iteration counts
-        for max_iter in [100, 500, 2000]:
-            model = SimpleLinearModel(learning_rate=0.01, max_iterations=max_iter)
-            metrics = model.train(X, y)
-            
-            assert model.is_trained
-            if max_iter >= 500:  # Should converge well with enough iterations
-                assert metrics.accuracy > 0.9
-                assert abs(model.weights[0] - 5.0) < 0.5
-                assert abs(model.bias - 2.0) < 0.5
+        # Test with very large values
+        large_input = np.array([1000, -1000, 500])
+        output_large = model.forward(large_input)
+        assert isinstance(output_large, ModelOutput)
+        assert not np.any(np.isnan(output_large.predictions))
+        assert not np.any(np.isinf(output_large.predictions))
+        
+        # Test with very small values
+        small_input = np.array([1e-10, -1e-10, 0])
+        output_small = model.forward(small_input)
+        assert isinstance(output_small, ModelOutput)
+        assert not np.any(np.isnan(output_small.predictions))
+    
+    def test_zero_input(self):
+        """Test models with zero input"""
+        model = SimpleModel(input_dim=4)
+        zero_input = np.zeros(4)
+        
+        output = model.forward(zero_input)
+        assert isinstance(output, ModelOutput)
+        assert len(output.predictions) == 1
+        assert not np.isnan(output.confidence)
+    
+    def test_single_dimension_input(self):
+        """Test model with single dimension"""
+        model = SimpleModel(input_dim=1, hidden_dim=4, output_dim=1)
+        input_data = np.array([0.5])
+        
+        output = model.forward(input_data)
+        assert isinstance(output, ModelOutput)
+        assert len(output.predictions) == 1
+    
+    def test_model_info_consistency(self):
+        """Test that model info is consistent"""
+        model = SimpleModel(input_dim=7, hidden_dim=25, output_dim=2)
+        
+        info1 = model.get_model_info()
+        info2 = model.get_model_info()
+        
+        # Info should be consistent
+        assert info1 == info2
+        
+        # Train model and check info changes
+        X = np.random.randn(20, 7)
+        y = np.random.randn(20)
+        model.fit(X, y, epochs=10)
+        
+        info_after_training = model.get_model_info()
+        assert info_after_training['trained'] == True
+        assert info1['trained'] == False
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

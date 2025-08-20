@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-08-18 01:54:25",
+  "timestamp": "2025-08-20 20:47:45",
   "overall_success": false,
-  "total_execution_time": 1.2748363018035889,
+  "total_execution_time": 1.2510566711425781,
   "summary": {
     "total_gates": 10,
     "passed_gates": 7,
@@ -13,7 +13,7 @@
       "name": "Code Execution",
       "passed": false,
       "score": 0.4,
-      "execution_time": 0.14842009544372559,
+      "execution_time": 0.13188505172729492,
       "critical": true,
       "details": {
         "passed_tests": "2/5",
@@ -29,14 +29,14 @@
     {
       "name": "Test Coverage",
       "passed": false,
-      "score": 0.8021276595744681,
-      "execution_time": 0.0030527114868164062,
+      "score": 0.8224489795918367,
+      "execution_time": 0.0022721290588378906,
       "critical": true,
       "details": {
         "functional_coverage": "100.0%",
-        "file_coverage": "34.0%",
-        "test_files": 16,
-        "source_modules": 47,
+        "file_coverage": "40.8%",
+        "test_files": 20,
+        "source_modules": 49,
         "functional_tests": {
           "basic_model_test": true,
           "research_demo": true,
@@ -50,7 +50,7 @@
       "name": "Security Scan",
       "passed": true,
       "score": 0.8,
-      "execution_time": 0.021808862686157227,
+      "execution_time": 0.02175164222717285,
       "critical": true,
       "details": {
         "security_score": "4/5",
@@ -68,12 +68,12 @@
       "name": "Performance Benchmarks",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.009807825088500977,
+      "execution_time": 0.00866556167602539,
       "critical": true,
       "details": {
-        "basic_execution_time": "0.0084s",
-        "optimized_execution_time": "0.0005s",
-        "throughput": "119.1 ops/sec",
+        "basic_execution_time": "0.0075s",
+        "optimized_execution_time": "0.0004s",
+        "throughput": "132.8 ops/sec",
         "performance_checks": {
           "basic_execution_speed": true,
           "optimization_available": true,
@@ -86,7 +86,7 @@
       "name": "Documentation Quality",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.003510713577270508,
+      "execution_time": 0.003412961959838867,
       "critical": false,
       "details": {
         "documentation_files": {
@@ -96,34 +96,34 @@
           "PUBLICATION_PACKAGE.md": true
         },
         "docstring_coverage": "100.0%",
-        "total_py_files": 60
+        "total_py_files": 62
       }
     },
     {
       "name": "Code Quality",
       "passed": true,
-      "score": 0.8866666666666667,
-      "execution_time": 0.012062788009643555,
+      "score": 0.8903225806451613,
+      "execution_time": 0.012593984603881836,
       "critical": false,
       "details": {
-        "file_count": 60,
-        "avg_file_size": 383.8666666666667,
-        "import_structure": 8.066666666666666,
-        "error_handling": 0.7166666666666667
+        "file_count": 62,
+        "avg_file_size": 404.43548387096774,
+        "import_structure": 8.209677419354838,
+        "error_handling": 0.7258064516129032
       }
     },
     {
       "name": "Memory Leaks",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.060038089752197266,
+      "execution_time": 0.05635666847229004,
       "critical": true,
       "details": {
-        "initial_memory_mb": "42.2",
-        "peak_memory_mb": "50.0",
-        "final_memory_mb": "43.1",
+        "initial_memory_mb": "42.0",
+        "peak_memory_mb": "49.7",
+        "final_memory_mb": "43.0",
         "memory_increase_mb": "7.7",
-        "recovery_ratio": "88.7%",
+        "recovery_ratio": "87.1%",
         "memory_checks": {
           "reasonable_usage": true,
           "memory_recovery": true,
@@ -135,7 +135,7 @@
       "name": "Error Handling",
       "passed": true,
       "score": 1.0,
-      "execution_time": 0.005512714385986328,
+      "execution_time": 0.0054111480712890625,
       "critical": true,
       "details": {
         "error_handling_score": "4/4",
@@ -145,7 +145,7 @@
           "graceful_degradation": true,
           "logging_on_errors": true
         },
-        "graceful_degradation_files": 28,
+        "graceful_degradation_files": 29,
         "logging_on_error_files": 42
       }
     },
@@ -153,7 +153,7 @@
       "name": "Integration Tests",
       "passed": false,
       "score": 0.5,
-      "execution_time": 0.003566741943359375,
+      "execution_time": 0.002685070037841797,
       "critical": true,
       "details": {
         "integration_score": "2/4",
@@ -175,7 +175,7 @@
       "name": "Deployment Readiness",
       "passed": true,
       "score": 0.8333333333333334,
-      "execution_time": 1.006486177444458,
+      "execution_time": 1.0055272579193115,
       "critical": false,
       "details": {
         "deployment_score": "5/6",
@@ -187,7 +187,7 @@
           "logging_configured": true,
           "health_checks": true
         },
-        "config_files": 4,
+        "config_files": 3,
         "log_files": 4
       }
     }
