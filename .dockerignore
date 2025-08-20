@@ -1,0 +1,111 @@
+# Ignore files and directories that shouldn't be in Docker image
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/_build/
+*.md
+!README.md
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+logs/
+
+# Data files (usually too large for container)
+*.csv
+*.json
+!requirements.txt
+!package.json
+*.pkl
+*.npy
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Cache
+cache/
+.cache/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Security
+.env
+.env.*
+secrets/
+*.pem
+*.key
+*.crt
+
+# Build artifacts
+*.tar.gz
+*.zip
+
+# Jupyter notebooks
+*.ipynb
+
+# Model files (too large)
+models/*.pkl
+models/*.h5
+models/*.pth
+!models/simple/
+
+# Deployment
+deployment/
+deploy.py

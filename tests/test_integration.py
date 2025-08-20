@@ -8,7 +8,7 @@ from pathlib import Path
 
 from src.algorithms.discovery import DiscoveryEngine
 from src.experiments.runner import ExperimentRunner, ExperimentConfig
-from src.models.base import SimpleLinearModel
+from src.models.simple import SimpleModel
 from src.utils.data_utils import generate_sample_data, validate_data
 from src.performance.caching import cached_function, get_cache_manager
 from src.performance.parallel import ParallelProcessor, parallel_discovery

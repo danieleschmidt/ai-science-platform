@@ -1,0 +1,66 @@
+# AI Science Platform - Development Docker Image
+FROM python:3.12-slim
+
+# Set build arguments
+ARG BUILD_DATE
+ARG VERSION=dev
+
+# Labels
+LABEL maintainer="Terragon Labs <noreply@terragons.ai>" \
+      version="${VERSION}" \
+      description="AI Science Platform - Development Environment" \
+      build-date="${BUILD_DATE}"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    curl \
+    vim \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create development user
+RUN groupadd -r aiuser && useradd -r -g aiuser aiuser
+
+# Set work directory
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt requirements-dev.txt* ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    if [ -f requirements-dev.txt ]; then pip install --no-cache-dir -r requirements-dev.txt; fi
+
+# Install development tools
+RUN pip install --no-cache-dir \
+    pytest \
+    pytest-cov \
+    pytest-asyncio \
+    black \
+    flake8 \
+    mypy \
+    jupyterlab \
+    ipython
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/cache /app/data /app/models && \
+    chown -R aiuser:aiuser /app
+
+# Switch to non-root user
+USER aiuser
+
+# Environment variables for development
+ENV PYTHONPATH=/app \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    LOG_LEVEL=DEBUG \
+    ENVIRONMENT=development
+
+# Expose ports
+EXPOSE 8000 8888
+
+# Default command for development
+CMD ["python", "-m", "src.main", "--dev"]

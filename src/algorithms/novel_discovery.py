@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import time
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +149,7 @@ class AdaptiveSamplingDiscovery(NovelAlgorithm):
             self._update_uncertainty_scores(data, selected_indices, uncertainty_scores)
             
             # Exploration vs exploitation trade-off
-            if np.random.random() < self.exploration_factor:
+            if secrets.randbelow(1000) / 1000.0 < self.exploration_factor:
                 # Exploration: select highest uncertainty
                 candidate_indices = [idx for idx in range(n_samples) if idx not in selected_indices]
                 next_idx = candidate_indices[np.argmax(uncertainty_scores[candidate_indices])]

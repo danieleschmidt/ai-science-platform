@@ -1,0 +1,56 @@
+{
+  "89998520e9e4257544ffc8729438ccaf8379017330a1665cba2b49b8e7911135": {
+    "file_path": ".cache/d816d3380298f95f55520f31a8e9fd825e6316c985fdbc598817c384481533be.json",
+    "size_bytes": 2,
+    "created": 1755722925.484758,
+    "last_access": 1755722925.4847584
+  },
+  "20d0bd407d760d2d3c6562decef112359523b1e9fbe04e05806d3243175b7d81": {
+    "file_path": ".cache/2b8d5a9d96a07822d3a218cc7e034b2994d40e6e6e11362332fd60738cb4b675.json",
+    "size_bytes": 1559,
+    "created": 1755722932.6539528,
+    "last_access": 1755722932.653953
+  },
+  "689d09914a60226cca5bad2e6b0d11e6254f29cdc516e886549f2ab5961e3ac1": {
+    "file_path": ".cache/e9dda210048c42b68124e6ab0720603a05784081f6cc6db76eb9150970acf645.json",
+    "size_bytes": 1565,
+    "created": 1755722932.6607983,
+    "last_access": 1755722932.6607983
+  },
+  "67dc5684465b1887a11b137089c367c14dfc41d32f6fdbd9e041d2fd0f1aed63": {
+    "file_path": ".cache/ae3f6e2cb4de3d1aa13352248d3f8bb288cc41ec4231a68c043c3447b99533d4.json",
+    "size_bytes": 3,
+    "created": 1755722939.0046062,
+    "last_access": 1755722939.0046062
+  },
+  "a461f8073060b015aed2355dacdcae11da170f8edf667000db6bef665b731fbf": {
+    "file_path": ".cache/024ac43c92048e643507c799c58a3bd7324024c26674c46d3341903e22165725.json",
+    "size_bytes": 3,
+    "created": 1755722939.0050013,
+    "last_access": 1755722939.0050013
+  },
+  "2b2ddf15cea73c2b637ac2bca2e4806bd24018e360ae37dbee09200c9417af0f": {
+    "file_path": ".cache/3b5dc18cd7e57780cdecc741a6e5c2b15776770d94c0988686d0faf839c3520e.json",
+    "size_bytes": 1,
+    "created": 1755722945.2559423,
+    "last_access": 1755722945.2559426
+  },
+  "7a257f29064c19b5515f97665f7ee66c8750b6df1cd4a2b4a6c2b488d71730b1": {
+    "file_path": ".cache/3248e79ae011ddb44bba19648fbe4dcb5bb2891f6372c6d431f18eb5995e135c.json",
+    "size_bytes": 1,
+    "created": 1755722945.256718,
+    "last_access": 1755722945.2567182
+  },
+  "a38e6b7c344df3f7df1ec9368a1856fdcbb4e24816a3f90137a008832a86ed8d": {
+    "file_path": ".cache/955c9f93678dc535d4b27891b601ba4ebd7c01b1d385624cbd575d8eaa3551e6.json",
+    "size_bytes": 1,
+    "created": 1755722945.2668552,
+    "last_access": 1755722945.2668555
+  },
+  "30798f3f113f14c970ae8fdeebbe14576b0fcba2df7f095e0aa6b6470dc918e0": {
+    "file_path": ".cache/c0b962a361372eb031140d58d455e9c146877fd32dd5ce895ac38e13cbd1ec99.json",
+    "size_bytes": 2,
+    "created": 1755722945.2677908,
+    "last_access": 1755722945.267791
+  }
+}
