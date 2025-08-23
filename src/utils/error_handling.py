@@ -9,6 +9,21 @@ from dataclasses import dataclass
 import numpy as np
 
 
+class DiscoveryError(Exception):
+    """Exception raised for errors in discovery processes"""
+    pass
+
+
+class SecurityError(Exception):
+    """Exception raised for security-related errors"""
+    pass
+
+
+class DataValidationError(Exception):
+    """Exception raised for data validation errors"""
+    pass
+
+
 @dataclass
 class ErrorContext:
     """Context information for error handling"""
