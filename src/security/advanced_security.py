@@ -1011,3 +1011,95 @@ def require_authorization(security_manager: SecurityManager, resource: str, acti
         
         return wrapper
     return decorator
+
+
+# Enhanced Security Demonstration
+def demo_advanced_security():
+    """Demonstrate advanced security capabilities"""
+    
+    print("🔒 Advanced Security Framework Demo")
+    print("=" * 50)
+    
+    # Initialize security manager
+    security_manager = SecurityManager()
+    
+    # Demonstrate authentication
+    print("\n1. User Authentication:")
+    auth_result = security_manager.authenticate_user(
+        "researcher_alice", "secure_password123", "192.168.1.100"
+    )
+    
+    if auth_result['success']:
+        token = auth_result['token']
+        print(f"✅ Authentication successful! Token: {token[:16]}...")
+        
+        # Demonstrate authorization
+        print("\n2. Authorization Check:")
+        auth_check = security_manager.authorize_action(
+            token, "research_data", "read", "192.168.1.100"
+        )
+        
+        if auth_check['authorized']:
+            print(f"✅ Authorization granted for user: {auth_check['user_id']}")
+            
+            # Demonstrate secure data access
+            print("\n3. Secure Data Access:")
+            data_result = security_manager.secure_data_access(
+                auth_check['user_id'], "confidential_research", "access",
+                {"experiment_id": "EXP001", "results": [1, 2, 3, 4, 5]}
+            )
+            
+            if data_result['success']:
+                print(f"✅ Data access successful (encrypted: {data_result['encrypted']})")
+            
+        else:
+            print(f"❌ Authorization failed: {auth_check['reason']}")
+    
+    else:
+        print(f"❌ Authentication failed: {auth_result['reason']}")
+    
+    # Demonstrate rate limiting
+    print("\n4. Rate Limiting Test:")
+    for i in range(7):  # Try more than limit
+        limited = security_manager.rate_limiter.check_rate_limit(
+            "test_user", "token_bucket", 5, 60  # 5 requests per minute
+        )
+        status = "✅ Allowed" if limited else "❌ Rate limited"
+        print(f"   Request {i+1}: {status}")
+    
+    # Demonstrate input validation
+    print("\n5. Input Validation:")
+    validator = security_manager.input_validator
+    
+    test_inputs = [
+        ("valid_email@example.com", "email", "Valid"),
+        ("invalid-email", "email", "Invalid"),
+        ("safe_text_123", "safe_string", "Valid"),
+        ("<script>alert('xss')</script>", "safe_string", "Blocked")
+    ]
+    
+    for input_val, validation_type, expected in test_inputs:
+        try:
+            result = validator.validate_and_sanitize(input_val, validation_type)
+            print(f"   {input_val[:30]:<30} -> {expected} ✅")
+        except SecurityError as e:
+            print(f"   {input_val[:30]:<30} -> {expected} ✅ (Blocked)")
+    
+    # Show security status
+    print("\n6. Security Status:")
+    status = security_manager.get_security_status()
+    print(f"   Active tokens: {status['tokens']['active']}")
+    print(f"   Locked accounts: {status['accounts']['locked']}")
+    print(f"   Security events (24h): {status['audit_summary']['total_events']}")
+    
+    # Run maintenance
+    print("\n7. Security Maintenance:")
+    security_manager.run_security_maintenance()
+    print("   ✅ Security maintenance completed")
+    
+    print("\n🔒 Advanced Security Demo Complete!")
+    return security_manager
+
+
+if __name__ == "__main__":
+    demo_advanced_security()
