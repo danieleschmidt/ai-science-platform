@@ -7,10 +7,10 @@ import numpy as np
 from pathlib import Path
 from typing import Optional
 
-from .algorithms.discovery import DiscoveryEngine
-from . import DiscoveryModel
-from .experiments.runner import ExperimentRunner, ExperimentConfig
-from .utils.logging_config import setup_logging
+from src.algorithms.discovery import DiscoveryEngine
+from src.models.simple import SimpleDiscoveryModel as DiscoveryModel
+from src.experiments.runner import ExperimentRunner, ExperimentConfig
+from src.utils.logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
