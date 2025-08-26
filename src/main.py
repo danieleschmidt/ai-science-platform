@@ -17,15 +17,16 @@ from src.config import get_config_manager
 def setup_environment():
     """Setup the runtime environment"""
     # Setup logging
-    logger = setup_logging()
+    setup_logging()
+    logger = logging.getLogger(__name__)
     logger.info("Starting AI Science Platform")
     
     # Check health
     health_checker = get_health_checker()
-    health_status = health_checker.run_health_check()
+    health_metrics = health_checker.get_system_metrics()
     
-    if health_status['status'] != 'HEALTHY':
-        logger.error(f"Health check failed: {health_status}")
+    if health_metrics.status != 'healthy':
+        logger.error(f"Health check failed: {health_metrics}")
         return False
     
     logger.info("Health check passed")
