@@ -1,133 +1,125 @@
-# ai science platform
+# AI Science Platform
 
-> AI-driven scientific discovery automation and research acceleration
+> AI-accelerated scientific discovery: hypothesis generation → experiment design → statistical analysis → iterative refinement.
 
-## 🎯 Research Mission
+## What it does
 
-This repository represents cutting-edge research at the intersection of Scientific Computing and Automated Research and ML for Science and Discovery Automation. Our goal is to push the boundaries of what's possible in this domain while maintaining rigorous scientific standards and reproducibility.
-
-## 🧬 Key Research Areas
-
-- Scientific Computing
-- Automated Research
-- ML for Science
-- Discovery Automation
-
-## 🛠️ Technology Stack
-
-- Python
-- JAX
-- SciPy
-- Dask
-- Ray
-
-## 📁 Repository Structure
+The platform orchestrates the core loop of empirical science programmatically:
 
 ```
-ai-science-platform/
-├── src/                 # Core implementation
-│   ├── models/         # Model architectures
-│   ├── algorithms/     # Novel algorithms
-│   ├── utils/          # Utility functions
-│   └── experiments/    # Experimental code
-├── tests/              # Unit and integration tests
-├── benchmarks/         # Performance benchmarks
-├── docs/               # Documentation and papers
-│   ├── literature/     # Literature review
-│   ├── theory/         # Theoretical foundations
-│   └── results/        # Experimental results
-├── examples/           # Usage examples
-├── notebooks/          # Jupyter notebooks
-└── scripts/            # Training and evaluation scripts
+Observations → Hypothesis → Experiment Design → Run → Analyze → Refine → ...
 ```
 
-## 🚀 Getting Started
+Each component does real work:
 
-### Prerequisites
+| Component | What it does |
+|---|---|
+| `HypothesisGenerator` | Abductive reasoning from observations using 4 scientific templates |
+| `ExperimentDesigner` | Designs controlled experiments with power-analysis-based sample sizing |
+| `ResultAnalyzer` | Computes Cohen's d, Welch t-test p-value, 95% CI — no scipy needed |
+| `ScientificLoop` | Orchestrates the full discovery cycle with iterative refinement |
+
+## Quick start
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-pip install -e .  # Install package in development mode
+python demo.py
 ```
 
-### Quick Start
+Output:
+```
+Round 1: [correlation] p=0.0000  d=+0.592  → SUPPORTS
+✓ Converged on a SUPPORTED hypothesis in 1 round(s).
+```
+
+## Usage
 
 ```python
-# Example usage will be added as research progresses
-import ai_science_platform
+from ai_science import ScientificLoop
 
-# Initialize model
-model = ai_science_platform.Model()
+observations = {
+    "treatment_dose": 10.0,
+    "biomarker_level": 4.2,
+    "groups": ["placebo", "drug"],
+}
 
-# Run inference
-results = model.forward(data)
+loop = ScientificLoop(domain="biology", max_rounds=5, seed=42)
+rounds = loop.run(observations)
+
+for r in rounds:
+    print(r.summary_line())
+    # Round 1: [causal] p=0.0032  d=+0.481  → SUPPORTS
 ```
 
-## 🧪 Research Progress
+### Use your own data
 
-### Phase 1: Foundation (Current)
-- [ ] Literature review and gap analysis
-- [ ] Baseline implementation
-- [ ] Initial benchmarking setup
-- [ ] Core algorithm design
+Plug in a custom simulator that returns real experimental data:
 
-### Phase 2: Innovation
-- [ ] Novel approach development
-- [ ] Comparative analysis
-- [ ] Performance optimization
-- [ ] Ablation studies
+```python
+from ai_science.analysis import ExperimentResult
 
-### Phase 3: Validation
-- [ ] Comprehensive benchmarking
-- [ ] Statistical significance testing
-- [ ] Reproducibility verification
-- [ ] Edge case analysis
+def my_experiment(design, hypothesis, rng):
+    # ... run your actual experiment or fetch data ...
+    return ExperimentResult(
+        design_id=design.id,
+        control_values=[...],
+        treatment_values=[...],
+    )
 
-### Phase 4: Publication
-- [ ] Paper draft preparation
-- [ ] Code cleanup and documentation
-- [ ] Public dataset preparation
-- [ ] Conference/journal submission
+loop = ScientificLoop(simulator_fn=my_experiment)
+```
 
-## 📊 Benchmarks
+## Hypothesis templates
 
-Benchmark results will be continuously updated as research progresses.
+The generator uses four abductive reasoning templates:
 
-| Method | Metric 1 | Metric 2 | Metric 3 |
-|--------|----------|----------|----------|
-| Baseline | TBD | TBD | TBD |
-| Our Method | TBD | TBD | TBD |
+- **Correlation** — two variables co-vary systematically
+- **Causal** — one variable drives another (proposes an RCT)
+- **Mechanistic** — proposes an underlying biological/chemical process
+- **Comparative** — effect differs between defined subgroups
 
-## 📖 Publications
+Each hypothesis includes:
+- `testable_predictions` — concrete, measurable predictions
+- `falsification_criteria` — explicit conditions that would refute it
 
-Papers and preprints related to this research:
+## Statistics (stdlib only)
 
-- [Coming Soon] "ai science platform: A Novel Approach" - *Target: NeurIPS 2025*
+- **Cohen's d** — pooled-SD effect size
+- **Welch's t-test** — two-sample, unequal variance, no scipy
+- **95% CI** — Welch–Satterthwaite degrees of freedom
+- **Power analysis** — Beasley-Springer-Moro inverse normal approximation
+- **t-distribution CDF** — regularized incomplete beta via Lentz continued fractions
 
-## 🤝 Contributing
+## Tests
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+```bash
+python -m pytest tests/ -v
+# 32 passed
+```
 
-## 📄 License
+## Project structure
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+```
+ai_science/
+  __init__.py       — public API
+  hypothesis.py     — Hypothesis dataclass + HypothesisGenerator
+  experiment.py     — ExperimentDesign dataclass + ExperimentDesigner
+  analysis.py       — ExperimentResult, AnalysisResult, ResultAnalyzer
+  loop.py           — ScientificLoop + DiscoveryRound
+tests/
+  test_hypothesis.py
+  test_experiment.py
+  test_analysis.py
+  test_loop.py
+demo.py             — 3-round discovery loop example
+```
 
-## 🙏 Acknowledgments
+## Design philosophy
 
-- Inspired by recent advances in Scientific Computing
-- Built upon foundational work in the field
+- **No external dependencies** — stdlib only (math, random, dataclasses, uuid)
+- **Bring your own data** — the simulator is a pluggable function
+- **Reproducible** — seed the RNG for deterministic runs
+- **Falsifiable** — every hypothesis carries explicit falsification criteria
 
-## 📞 Contact
+## License
 
-- **Principal Investigator**: Daniel Schmidt
-- **Repository**: [github.com/danieleschmidt/ai-science-platform](https://github.com/danieleschmidt/ai-science-platform)
-- **Issues**: [GitHub Issues](https://github.com/danieleschmidt/ai-science-platform/issues)
-
----
-
-*This is an active research project. Results and approaches are subject to change as we explore this frontier.*
+MIT
